@@ -167,15 +167,22 @@ module uart(
 		.data(rxd),
 	);
 
+	// These feed the uart_tx instance at module scope below, so they must be
+	// declared at module scope (not inside a generate branch) — otherwise, with
+	// `default_nettype none, yosys errors on the implicit reference. serial_txd_ready
+	// is driven by uart_tx; the branches drive serial_txd_data/serial_txd_strobe.
+	wire [7:0] serial_txd_data;
+	wire serial_txd_strobe;
+	wire serial_txd_ready;
+
 	generate
 	if(FIFO == 0) begin
-		wire [7:0] serial_txd_data = txd;
-		wire serial_txd_ready = txd_ready;
-		wire serial_txd_strobe = txd_strobe;
+		assign serial_txd_data   = txd;
+		assign serial_txd_strobe = txd_strobe;
+		assign txd_ready         = serial_txd_ready;
 	end else begin
-		reg serial_txd_strobe;
-		wire serial_txd_ready;
-		wire [7:0] serial_txd_data;
+		reg serial_txd_strobe_r;
+		assign serial_txd_strobe = serial_txd_strobe_r;
 
 		wire fifo_available;
 		fifo #(
@@ -200,9 +207,9 @@ module uart(
 			&&  serial_txd_ready
 			&& !serial_txd_strobe
 			&& !reset)
-				serial_txd_strobe <= 1;
+				serial_txd_strobe_r <= 1;
 			else
-				serial_txd_strobe <= 0;
+				serial_txd_strobe_r <= 0;
 		end
 	end
 	endgenerate

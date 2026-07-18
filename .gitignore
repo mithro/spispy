@@ -8,3 +8,6 @@ pll_*.v
 .*.d
 *.bit
 *.rom
+
+# local build worktrees
+.worktrees/
