@@ -59,6 +59,7 @@ END
 
 GetOptions(
 	"h|?|help"	=> sub { print $usage; exit 0 },
+	"d|device=s"	=> \$dev_file,
 	"b|baud=i"	=> \$baud,
 	"X|reboot+"	=> \$reboot,
 	"w|write=s"	=> \$write_file,
